@@ -55,7 +55,7 @@ func (p player) Draw(screen *ebiten.Image) {
 	playerOptions := &ebiten.DrawImageOptions{}
 	playerOptions.GeoM.Scale(0.5, 0.5)
 	// Translate based on the image's size, on the upper left side of screen
-	playerOptions.GeoM.Translate(-float64(Player.Width)/2, -float64(Player.Heigth)/2)
+	playerOptions.GeoM.Translate(-float64(p.Width)/2, -float64(p.Heigth)/2)
 	// Rotate the image. As a result, the anchor point of this rotate is
 	// the center of the image.
 	playerOptions.GeoM.Rotate(p.Angle)
