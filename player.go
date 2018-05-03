@@ -60,9 +60,9 @@ func (p player) Draw(screen *ebiten.Image) {
 	// the center of the image.
 	playerOptions.GeoM.Rotate(p.Angle)
 	// Translate on current position
-	playerOptions.GeoM.Translate(float64(Player.X), float64(Player.Y))
+	playerOptions.GeoM.Translate(float64(p.X), float64(p.Y))
 	// Draw on screen, the sprite with options
-	screen.DrawImage(Player.Sprite, playerOptions)
+	screen.DrawImage(p.Sprite, playerOptions)
 
 }
 
