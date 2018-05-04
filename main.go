@@ -1,15 +1,16 @@
+//go:generate file2byteslice -package=images -input=images/player.png -output=./images/player.go -var=Player_png
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"image"
 	"image/color"
-	_ "image/png"
 	"log"
 	"math"
-	"os"
 	"time"
 
+	"github.com/dosko64/lifewreck/images"
 	"github.com/jakecoffman/cp"
 
 	"github.com/hajimehoshi/ebiten"
@@ -30,13 +31,7 @@ var (
 func init() {
 
 	// Preload images
-	playerFile, err := os.Open("player.png")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer playerFile.Close()
-
-	img, _, err := image.Decode(playerFile)
+	img, _, err := image.Decode(bytes.NewReader(images.Player_png))
 	if err != nil {
 		log.Fatal("Could not open file: ", err)
 	}
