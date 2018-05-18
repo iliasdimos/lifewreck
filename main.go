@@ -15,11 +15,8 @@ import (
 	"time"
 
 	"github.com/dosko64/lifewreck/images"
-	"github.com/dosko64/lifewreck/sound"
 
 	"github.com/hajimehoshi/ebiten"
-	"github.com/hajimehoshi/ebiten/audio"
-	"github.com/hajimehoshi/ebiten/audio/mp3"
 	"github.com/hajimehoshi/ebiten/ebitenutil"
 )
 
@@ -43,17 +40,17 @@ var HighScore int
 
 var state = Running
 
-var audioContext *audio.Context
+// var audioContext *audio.Context
 
-var audioPlayer *audio.Player
+// var audioPlayer *audio.Player
 
 func init() {
-	// Create audio player
-	var err error
-	audioContext, err = audio.NewContext(sampleRate)
-	if err != nil {
-		log.Fatal(err)
-	}
+	// // Create audio player
+	// var err error
+	// audioContext, err = audio.NewContext(sampleRate)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
 
 	// Preload images
 	img, _, err := image.Decode(bytes.NewReader(images.Survivor_png))
@@ -103,26 +100,26 @@ func init() {
 var lastEnemy = time.Now()
 
 func update(screen *ebiten.Image) error {
-	if audioPlayer == nil {
-		// Decode the wav file.
-		// wavS is a decoded io.ReadCloser and io.Seeker.
-		wavS, err := mp3.Decode(audioContext, audio.BytesReadSeekCloser(sound.All_mp3))
-		if err != nil {
-			return err
-		}
+	// if audioPlayer == nil {
+	// 	// Decode the wav file.
+	// 	// wavS is a decoded io.ReadCloser and io.Seeker.
+	// 	wavS, err := mp3.Decode(audioContext, audio.BytesReadSeekCloser(sound.All_mp3))
+	// 	if err != nil {
+	// 		return err
+	// 	}
 
-		// Create an infinite loop stream from the decoded bytes.
-		// s is still an io.ReadCloser and io.Seeker.
-		s := audio.NewInfiniteLoop(wavS, wavS.Length())
+	// 	// Create an infinite loop stream from the decoded bytes.
+	// 	// s is still an io.ReadCloser and io.Seeker.
+	// 	s := audio.NewInfiniteLoop(wavS, wavS.Length())
 
-		audioPlayer, err = audio.NewPlayer(audioContext, s)
-		if err != nil {
-			return err
-		}
+	// 	audioPlayer, err = audio.NewPlayer(audioContext, s)
+	// 	if err != nil {
+	// 		return err
+	// 	}
 
-		// Play the infinite-length stream. This never ends.
-		audioPlayer.Play()
-	}
+	// 	// Play the infinite-length stream. This never ends.
+	// 	audioPlayer.Play()
+	// }
 
 	if Health < 0 {
 		if Score > HighScore {
