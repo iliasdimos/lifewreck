@@ -1,50 +1,71 @@
 package main
 
 import (
-	"math"
 	"time"
 
 	"github.com/hajimehoshi/ebiten"
-	"github.com/jakecoffman/cp"
 )
 
 var playerSprite *ebiten.Image
 
 type player struct {
-	X, Y, Heigth, Width int
+	x, y, height, width float64
 	Angle               float64
 	LastShoot           time.Time
 	BulletSpeed         float64
-	Speed               int
+	Speed               float64
 }
 
 func (p *player) Move() {
+	if len(ebiten.TouchIDs()) > 0 {
+		p.checkTouch()
+		return
+	}
 	if ebiten.IsKeyPressed(ebiten.KeyA) || ebiten.IsKeyPressed(ebiten.KeyLeft) {
-		p.X -= p.Speed
+		p.x -= p.Speed
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyD) || ebiten.IsKeyPressed(ebiten.KeyRight) {
-		p.X += p.Speed
+		p.x += p.Speed
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyW) || ebiten.IsKeyPressed(ebiten.KeyUp) {
-		p.Y -= p.Speed
+		p.y -= p.Speed
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyS) || ebiten.IsKeyPressed(ebiten.KeyDown) {
-		p.Y += p.Speed
+		p.y += p.Speed
 	}
 }
 
-func (p *player) CheckScreen(screenWidth, screenHeight int) {
-	if p.X > screenWidth-p.Width {
-		p.X = screenWidth - p.Width
+func (p *player) checkTouch() {
+	for _, t := range ebiten.TouchIDs() {
+		x, y := ebiten.TouchPosition(t)
+		if x > int(p.x) {
+			p.x += p.Speed
+		}
+		if x < int(p.x) {
+			p.x -= p.Speed
+		}
+		if y > int(p.y) {
+			p.y += p.Speed
+		}
+		if y < int(p.y) {
+			p.y -= p.Speed
+		}
 	}
-	if p.X < 0+p.Width {
-		p.X = 0 + p.Width
+	return
+}
+
+func (p *player) CheckScreen(screenWidth, screenHeight float64) {
+	if p.x > screenWidth-p.width {
+		p.x = screenWidth - p.width
 	}
-	if p.Y > screenHeight-p.Heigth {
-		p.Y = screenHeight - p.Heigth
+	if p.x < 0+p.width {
+		p.x = 0 + p.width
 	}
-	if p.Y < 0+p.Heigth {
-		p.Y = 0 + p.Heigth
+	if p.y > screenHeight-p.height {
+		p.y = screenHeight - p.height
+	}
+	if p.y < 0+p.height {
+		p.y = 0 + p.height
 	}
 }
 
@@ -55,49 +76,24 @@ func (p *player) Draw(screen *ebiten.Image) {
 	playerOptions := &ebiten.DrawImageOptions{}
 	playerOptions.GeoM.Scale(0.5, 0.5)
 	// Translate based on the image's size, on the upper left side of screen
-	playerOptions.GeoM.Translate(-float64(p.Width)/2, -float64(p.Heigth)/2)
+	playerOptions.GeoM.Translate(-float64(p.width)/2, -float64(p.height)/2)
 	// Rotate the image. As a result, the anchor point of this rotate is
 	// the center of the image.
 	playerOptions.GeoM.Rotate(p.Angle)
 	// Translate on current position
-	playerOptions.GeoM.Translate(float64(p.X), float64(p.Y))
+	playerOptions.GeoM.Translate(float64(p.x), float64(p.y))
 	// Draw on screen, the sprite with options
 	screen.DrawImage(playerSprite, playerOptions)
 
 }
 
-func (p *player) Shoot(space *cp.Space, screen *ebiten.Image) {
+func (p *player) Shoot() {
 	// Create bullets if mouse is pressed
 	p.LastShoot = time.Now()
-
-	bulletShape := makeBullet(float64(p.X), float64(p.Y))
-	// bulletShape.SetCollisionType(BulletCollisionType)
-
-	bulletBody := space.AddBody(bulletShape.Body())
-	bulletBody.UserData = "bullet"
-	bulletBody.SetAngle(p.Angle)
-	bulletBody.SetPositionUpdateFunc(func(body *cp.Body, dt float64) {
-		v := cp.Vector{
-			X: body.Position().X + (math.Cos(body.Angle()) * p.BulletSpeed * dt),
-			Y: body.Position().Y + (math.Sin(body.Angle()) * p.BulletSpeed * dt),
-		}
-		body.SetPosition(v)
-	})
-	// space.AddBody(bulletBody)
-	// space.AddShape(bulletShape)
+	NewBullet(p.x, p.y, p.Angle)
 }
 
-const BulletCollisionType cp.CollisionType = 0
-
-func makeBullet(x, y float64) *cp.Shape {
-	body := cp.NewBody(10.0, cp.BODY_KINEMATIC)
-	body.SetPosition(cp.Vector{x, y})
-
-	shape := cp.NewCircle(body, 0.95, cp.Vector{})
-	shape.SetElasticity(0)
-	shape.SetFriction(0)
-
-	shape.SetCollisionType(BulletCollisionType)
-
-	return shape
-}
+func (p player) X() float64  { return p.x }
+func (p player) Y() float64  { return p.y }
+func (p player) SY() float64 { return p.y + p.height }
+func (p player) SX() float64 { return p.x + p.width }
