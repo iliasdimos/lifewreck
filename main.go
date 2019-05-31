@@ -129,15 +129,15 @@ func update(screen *ebiten.Image) error {
 		Score = 0
 	}
 
-	if state == Paused {
-		return nil
-	}
-
 	if ebiten.IsKeyPressed(ebiten.KeyQ) && state == Running {
 		state = Paused
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyQ) && state == Paused {
 		state = Running
+	}
+
+	if state == Paused {
+		return nil
 	}
 
 	Player.Move()
@@ -177,10 +177,15 @@ func update(screen *ebiten.Image) error {
 		NewEnemy((Player.X()+Player.SX())/2, (Player.Y()+Player.SY())/2)
 		lastEnemy = time.Now()
 	}
-	for _, e := range enemies {
-		e.Draw(screen)
-	}
+
 	for t, e := range enemies {
+		for tt, ee := range enemies {
+			if e.CheckCollision(ee) {
+				if t != tt {
+					e.Speed = 0.5
+				}
+			}
+		}
 		if e.CheckCollision(Player) {
 			delete(enemies, t)
 			Health--
@@ -194,6 +199,7 @@ func update(screen *ebiten.Image) error {
 
 		e.Update((Player.X()+Player.SX())/2, (Player.Y()+Player.SY())/2)
 
+		e.Draw(screen)
 	}
 
 	// FPS counter
